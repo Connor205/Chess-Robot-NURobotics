@@ -1,0 +1,1 @@
+This is where I will be testing and working on a visual representation of chess. The goal will be to draw any position given the fen string for any position. 
