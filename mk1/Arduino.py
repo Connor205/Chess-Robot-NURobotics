@@ -29,7 +29,7 @@ class Arduino:
 
     def monitorState(self):
         # Start a thread to monitor the state of the Arduino
-        self.t = threading.Thread(target=self.monitorStateThread, daemon=True)
+        self.t = threading.Thread(target=self.monitorArduinoOutputThread, daemon=True)
         self.t.start()
 
     def monitorArduinoOutputThread(self):
