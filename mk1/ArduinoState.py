@@ -8,4 +8,4 @@ class ArduinoState:
     x_pos: int = None
     y_pos: int = None
     z_pos: int = None
-    grabber_state: str = None | "open" | "closed"
+    grabber_state: str = None  #| "open" | "closed"
