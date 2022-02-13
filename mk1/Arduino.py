@@ -29,8 +29,8 @@ class Arduino:
 
     def monitorState(self):
         # Start a thread to monitor the state of the Arduino
-        t = threading.Thread(target=self.monitorStateThread)
-        t.start()
+        self.t = threading.Thread(target=self.monitorStateThread, daemon=True)
+        self.t.start()
 
     def monitorArduinoOutputThread(self):
         # This is the thread that monitors the state of the Arduino
@@ -46,7 +46,7 @@ class Arduino:
         # This is a blocking call
         input = self.ser.readline().decode('utf-8').rstrip()
 
-        self.logger.debug(f'Arduino - {input}')
+        self.logger.info(f'Arduino: {input}')
         command, value = input.split(':')
         match command:
             case 'state':
@@ -65,9 +65,6 @@ class Arduino:
                 with self.stateLock:
                     self.state.grabber_state = value
         
-                
-    
-    
     def getStateSafe(self):
         # getter for state with locking
         with self.stateLock:
@@ -81,5 +78,6 @@ class Arduino:
     def waitForReady(self):
         while self.state.state != 'ready':
             time.sleep(0.1)
+
     
         
