@@ -1,10 +1,10 @@
 from ast import Raise
 import threading
 import time
-import os
 from ArduinoState import ArduinoState
 import serial
 import logging
+import sys
 
 class Arduino:
     state = ArduinoState()
@@ -16,6 +16,7 @@ class Arduino:
 
     def __init__(self, port: str, baud=9600):
         self.logger = logging.getLogger(__name__)
+        self.logger.addHandler(logging.StreamHandler(sys.stdout))
         self.port = port
         self.baud = baud
         self.connect()
@@ -23,7 +24,7 @@ class Arduino:
 
     def connect(self):
         # Start up the serial connection
-        self.ser = serial.Serial(self.port, self.baud, timeout=1)
+        self.ser = serial.Serial(self.port, self.baud, timeout=None)
         self.ser.flushInput()
         self.ser.flushOutput()
 
@@ -44,36 +45,49 @@ class Arduino:
         # Read the state of the Arduino
         # Pipes the output into self.state
         # This is a blocking call
-        input = self.ser.readline().decode('utf-8').rstrip()
+        try:
+            input = self.ser.read_until(b'\n').decode('utf-8').strip()
+            self.logger.info(f'Arduino: {input}')
+            print(f'Arduino - {input}')
+            command, value = input.split(':')
+            match command:
+                case 'state':
+                    with self.stateLock:
+                        self.state.state = value
+                case 'x_pos':
+                    with self.stateLock:
+                        self.state.x_pos = int(value)
+                case 'y_pos':
+                    with self.stateLock:
+                        self.state.y_pos = int(value)
+                case 'z_pos':
+                    with self.stateLock:
+                        self.state.z_pos = int(value)
+                case 'grabber_state':
+                    with self.stateLock:
+                        self.state.grabber_state = value
+        except UnicodeDecodeError:
+            print("UnicodeDecodeError")
 
-        self.logger.info(f'Arduino: {input}')
-        command, value = input.split(':')
-        match command:
-            case 'state':
-                with self.stateLock:
-                    self.state.state = value
-            case 'x_pos':
-                with self.stateLock:
-                    self.state.x_pos = int(value)
-            case 'y_pos':
-                with self.stateLock:
-                    self.state.y_pos = int(value)
-            case 'z_pos':
-                with self.stateLock:
-                    self.state.z_pos = int(value)
-            case 'grabber_state':
-                with self.stateLock:
-                    self.state.grabber_state = value
+
         
     def getStateSafe(self):
         # getter for state with locking
         with self.stateLock:
             return self.state
 
-    def sendCommand(self, type: str, value: str) -> None:
-        if ':' in value:
-            Raise(ValueError('Value cannot contain a colon when sending data to the Arduino'))
-        self.ser.write(f'{type}:{value}\n'.encode('utf-8'))
+    def sendCommand(self, type: str, values: list) -> None:
+        if len(values) == 0:
+            Raise(ValueError('Values cannot be empty when sending data to the Arduino'))
+        # If the character : is in any of the strings in values raise an exception
+        for value in values:
+            if ':' in value:
+                Raise(ValueError('Values cannot contain the character : when sending data to the Arduino'))
+        
+        # Here we write the type of command and then the value of said command so that the arduino is able to parse it
+        self.ser.write(f'{type}\n'.encode('utf-8'))
+        for value in values:
+            self.ser.write(f'{value}\n'.encode('utf-8'))
     
     def waitForReady(self):
         while self.state.state != 'ready':
