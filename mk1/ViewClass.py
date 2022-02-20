@@ -90,22 +90,22 @@ class View:
                 if self.state == 'WaitingForPlayer':
                     # Nothing happens here, we dont kick off any concurrency
                     currentAwait = None
-                if self.state == 'GettingPlayerMove':
+                elif self.state == 'GettingPlayerMove':
                     currentAwait = ThreadWithReturn(self.gl.getPlayerMove)
                     currentAwait.start()
-                if self.state == 'ProcessingPlayerMove':
+                elif self.state == 'ProcessingPlayerMove':
                     currentAwait = ThreadWithReturn(self.gl.processPlayerMove,
                                                     previousResult)
                     currentAwait.start()
-                if self.state == 'GettingComputerMove':
+                elif self.state == 'GettingComputerMove':
                     currentAwait = ThreadWithReturn(
                         self.gl.generateComputerMove)
                     currentAwait.start()
-                if self.state == 'MakingComputerMove':
+                elif self.state == 'MakingComputerMove':
                     currentAwait = ThreadWithReturn(self.gl.makeComputerMove,
                                                     previousResult)
                     currentAwait.start()
-                if self.state == 'GameOver':
+                elif self.state == 'GameOver':
                     currentAwait = None
 
                 self.previousState = self.state

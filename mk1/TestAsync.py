@@ -1,5 +1,4 @@
 from time import sleep
-from Arduino import Arduino
 import serial
 
 from ViewClass import View
