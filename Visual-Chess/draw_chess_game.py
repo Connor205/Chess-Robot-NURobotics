@@ -1,6 +1,5 @@
 import pygame
 import piece
-import chess_game
 
 # Define some colors
 BLACK = (0, 0, 0)
