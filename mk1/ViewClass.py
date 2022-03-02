@@ -3,6 +3,8 @@ from ThreadWithReturn import ThreadWithReturn
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame as pg
+
+pg.init()
 from pygame.locals import *
 from GameLogic import GameLogic
 from BasicStockfishPlayers import BasicStockfishPlayers
@@ -25,7 +27,6 @@ class View:
 
     def __init__(self, gl: GameLogic) -> None:
         self.logger.debug("Creating View")
-        pg.init()
         self.logger.info("Initialized pygame")
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.defaultFont = pg.font.SysFont(None, 24)

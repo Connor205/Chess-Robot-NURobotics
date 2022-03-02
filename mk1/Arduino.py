@@ -1,4 +1,3 @@
-from ast import Raise
 import threading
 import time
 from ArduinoState import ArduinoState
