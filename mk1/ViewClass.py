@@ -19,10 +19,12 @@ class View:
     logger.setLevel(logging.DEBUG)
     states = [
         "WaitingForPlayer", "GettingPlayerMove", "ProcessingPlayerMove",
-        "GettingComputerMove", "MakingComputerMove", "GameOver"
+        "PlayerWin", "GettingComputerMove", "MakingComputerMove", "ComputerWin"
     ]
     revertStates = {
         'ProcessingPlayerMove': 'WaitingForPlayer',
+        'PlayerWin': 'WaitingForPlayer',
+        'ComputerWin': 'WaitingForPlayer',
     }
 
     def __init__(self, gl: GameLogic) -> None:
@@ -98,6 +100,9 @@ class View:
                     currentAwait = ThreadWithReturn(self.gl.processPlayerMove,
                                                     previousResult)
                     currentAwait.start()
+                elif self.state == 'PlayerWin':
+                    currentAwait = ThreadWithReturn(self.gl.playerWin)
+                    currentAwait.start()
                 elif self.state == 'GettingComputerMove':
                     currentAwait = ThreadWithReturn(
                         self.gl.generateComputerMove)
@@ -106,8 +111,9 @@ class View:
                     currentAwait = ThreadWithReturn(self.gl.makeComputerMove,
                                                     previousResult)
                     currentAwait.start()
-                elif self.state == 'GameOver':
-                    currentAwait = None
+                elif self.state == 'ComputerWin':
+                    currentAwait = ThreadWithReturn(self.gl.computerWin)
+                    currentAwait.start()
 
                 self.previousState = self.state
             else:

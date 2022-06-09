@@ -10,15 +10,18 @@ private:
     bool currentDirection;
     int current;
     int target;
-    int mSpeed; // max speed in ticks per second
+    int previous;
+    long previousChangeTime;
+    bool currentlyOn;
+    long mSpeed; // max speed in ticks per second
     int cSpeed;
-    int cDelay;
+    long cDelay;
     String name;
     int limitSwitchPin;
     bool limitSwitchDirection;
 
 public:
-    CustomAxis(int stepPins_[], int dirPins_[], bool forwardDirections_[], String name_)
+    CustomAxis(int stepPins_[], int dirPins_[], bool forwardDirections_[], String name_, int numMotors_)
     {
         stepPins = stepPins_;
         dirPins = dirPins_;
@@ -26,15 +29,17 @@ public:
         name = name_;
         limitSwitchPin = -1;
         limitSwitchDirection = false;
+        numMotors = numMotors_;
     }
 
-    CustomAxis(int stepPins_[], int dirPins_[], bool forwardDirections_[], String name_, int limitSwitchPin_,
-        bool limitSwitchDirection_)
+    CustomAxis(int stepPins_[], int dirPins_[], bool forwardDirections_[], String name_, int numMotors_,
+        int limitSwitchPin_, bool limitSwitchDirection_)
     {
         stepPins = stepPins_;
         dirPins = dirPins_;
         forwardDirections = forwardDirections_;
         name = name_;
+        numMotors = numMotors_;
         limitSwitchPin = limitSwitchPin_;
         limitSwitchDirection = limitSwitchDirection_;
     }
@@ -45,7 +50,7 @@ public:
 
     int getNumMotors();
 
-    void setSpeed(int s);
+    void setSpeed(long s);
 
     int getSpeed();
     int getDelay();
@@ -63,11 +68,23 @@ public:
 
     int getQuadraticSpeedCurve(int currentStep, int totalSteps);
 
-    int linearSpeedCurve(int currentStep, int totalSteps);
+    long linearSpeedCurve(long currentStep, long totalSteps);
+
+    long trapazoidalSpeedCurve(long currentStep, long totalSteps);
 
     void moveToAccel(int targetStep);
 
     int checkLimitSwitch();
 
     int calibrateAxis();
+
+    void update();
+
+    void setTarget(int targetStep);
+
+    void setRelativeMM(int mm);
+
+    bool isMoving();
+
+    bool waitToStop();
 };

@@ -34,7 +34,6 @@ class BasicStockfishPlayers(GameLogic):
 
     def processPlayerMove(self, move):
         previousPos = self.stockfish.get_fen_position()
-
         self.stockfish.make_moves_from_current_position([move])
         newPos = self.stockfish.get_fen_position()
         if newPos == previousPos:

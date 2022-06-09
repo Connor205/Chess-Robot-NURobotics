@@ -48,12 +48,13 @@ class Arduino:
         # This is a blocking call
         try:
             input = self.ser.read_until(b'\n').decode('utf-8').strip()
-            self.logger.info(f'Arduino: {input}')
-            print(f'Arduino - {input}')
+            self.logger.info(f'Arduino Output --{input}--')
             command, value = input.split(':')
-            if command == 'state':
+            print("Command: {} | Value: {}".format(command, value))
+            if command == 'STATE':
                 with self.stateLock:
                     self.state.state = value
+                print("Updated Arduino State to: {}".format(value))
             elif command == 'x_pos':
                 with self.stateLock:
                     self.state.x_pos = int(value)
@@ -74,24 +75,32 @@ class Arduino:
         with self.stateLock:
             return self.state
 
-    def sendCommand(self, type: str, values: list) -> None:
-        if len(values) == 0:
-            Raise(
-                ValueError(
-                    'Values cannot be empty when sending data to the Arduino'))
+    def sendCommand(self, type: str, values: list = []) -> None:
         # If the character : is in any of the strings in values raise an exception
+        values = [str(value) for value in values]
         for value in values:
             if ':' in value:
-                Raise(
-                    ValueError(
-                        'Values cannot contain the character : when sending data to the Arduino'
-                    ))
+                raise (ValueError(
+                    'Values cannot contain the character : when sending data to the Arduino: {}'
+                    .format(value)))
 
         # Here we write the type of command and then the value of said command so that the arduino is able to parse it
-        self.ser.write(f'{type}\n'.encode('utf-8'))
+        self.ser.write(f'{type}\n'.encode())
+        time.sleep(.2)
         for value in values:
-            self.ser.write(f'{value}\n'.encode('utf-8'))
+            self.ser.write(f'{value}\n'.encode())
+            time.sleep(.2)
 
     def waitForReady(self):
+        if self.state.state == 'ready':
+            print("State Was Ready When Wait For Ready Was Called")
+        time.sleep(.3)
         while self.state.state != 'ready':
+            time.sleep(0.1)
+
+    def waitForHome(self):
+        if self.state.state == 'home':
+            print("State Was Home When Wait For Home Was Called")
+        time.sleep(.3)
+        while self.state.state != 'home':
             time.sleep(0.1)

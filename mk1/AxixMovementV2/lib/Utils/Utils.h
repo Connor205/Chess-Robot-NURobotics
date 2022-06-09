@@ -1,5 +1,5 @@
 #include <Arduino.h>
-int getDelayFromSpeed(int s);
+long getDelayFromSpeed(long s);
 
 void writeMessage(String type, String message);
 
@@ -9,4 +9,7 @@ void writeError(String message);
 
 void writeDebug(String message);
 
+void writeState(String state);
+
 void waitForSerialInput();
+long convertMMToSteps(long mm);
