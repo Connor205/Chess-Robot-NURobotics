@@ -6,6 +6,8 @@ BOARD_WIDTH = SCREEN_HEIGHT
 BOARD_HEIGHT = SCREEN_HEIGHT
 SQUARE_SIZE = BOARD_WIDTH // 8
 
+PIECE_SIZE = 80 // 5 * 4
+
 PIECE_DICTIONARY = {
     "p": {
         "black": True,
@@ -83,4 +85,4 @@ PIECE_DICTIONARY = {
 
 for k, v in PIECE_DICTIONARY.items():
     v["image"] = pg.image.load(v["image"])
-    v["image"] = pg.transform.scale(v["image"], (SQUARE_SIZE, SQUARE_SIZE))
+    v["image"] = pg.transform.scale(v["image"], (PIECE_SIZE, PIECE_SIZE))

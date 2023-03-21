@@ -56,7 +56,6 @@ class MovementStockfishPlayers(GameLogic):
         startSquare = move.from_square
         endSquare = move.to_square
         self.logger.info("Moving from {} to {}".format(startSquare, endSquare))
-        if 
         # Assuming move is something like d2d4
         # Lets check for a castle move
         fen = self.getCurretFenString()
