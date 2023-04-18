@@ -1,8 +1,6 @@
 from math import sqrt
-from CapturedPieceManagement import CapturedPieceManagement
 import chess
 import heapq
-import Arduino
 
 
 class WeightedNode:
@@ -203,7 +201,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 frontier.update(next_node, next_priority)
 
 
-def findPath(fen, captured: CapturedPieceManagement):
+def findPath(fen, captured):
     white = 1
     black = 1
     return aStarSearch(ResetSearchProblem((fen, white, black)), resetHueristic)
@@ -317,7 +315,7 @@ def getSuccessors(fen, white, black):
 startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 
-def findPathGreedy(fen, captured: CapturedPieceManagement):
+def findPathGreedy(fen, captured):
     currentSquare = 56
     currentFen = fen
     w = captured.white
@@ -397,50 +395,49 @@ def isMoveLift(fen, move):
     return True
 
 
-def reset_game_board(fen, captured: CapturedPieceManagement):
-    a = Arduino.Arduino("/dev/cu.usbmodem142101")
-    a.waitForReady()
-    path = findPathGreedy(fen, captured)
-    if path is False:
-        print("Unable to find path")
-        return False
-    for m, f in path:
-        if m[0] == "board":
-            startSquare = convertSquareToCoordinates(chess.square_name(m[1]))
-            endSquare = convertSquareToCoordinates(chess.square_name(m[2]))
-            a.sendCommand("move", [startSquare[0], startSquare[1]])
-            a.waitForReady()
-            if isMoveLift(f, m):
-                a.sendCommand("pickup", [])
-            else:
-                a.sendCommand("smallPickup", [])
-            a.waitForReady()
-            a.sendCommand("move", [endSquare[0], endSquare[1]])
-            a.waitForReady()
-            a.sendCommand("drop", [])
-            a.waitForReady()
-        if m[0] == "white":
-            a.sendCommand("moveWhiteTaken", [m[1], m[2]])
-            a.waitForReady()
-            a.sendCommand("pickupTaken", [])
-            endSquare = convertSquareToCoordinates(chess.square_name(m[3]))
-            a.sendCommand("move", [endSquare[0], endSquare[1]])
-            a.waitForReady()
-            a.sendCommand("drop", [])
-            a.waitForReady()
-        if m[0] == "black":
-            a.sendCommand("moveBlackTaken", [m[1], m[2]])
-            a.waitForReady()
-            a.sendCommand("pickupTaken", [])
-            endSquare = convertSquareToCoordinates(chess.square_name(m[3]))
-            a.sendCommand("move", [endSquare[0], endSquare[1]])
-            a.waitForReady()
-            a.sendCommand("drop", [])
-            a.waitForReady()
-
+# def reset_game_board(fen, captured: CapturedPieceManagement):
+#     a = Arduino.Arduino("/dev/cu.usbmodem142101")
+#     a.waitForReady()
+#     path = findPathGreedy(fen, captured)
+#     if path is False:
+#         print("Unable to find path")
+#         return False
+#     for m, f in path:
+#         if m[0] == "board":
+#             startSquare = convertSquareToCoordinates(chess.square_name(m[1]))
+#             endSquare = convertSquareToCoordinates(chess.square_name(m[2]))
+#             a.sendCommand("move", [startSquare[0], startSquare[1]])
+#             a.waitForReady()
+#             if isMoveLift(f, m):
+#                 a.sendCommand("pickup", [])
+#             else:
+#                 a.sendCommand("smallPickup", [])
+#             a.waitForReady()
+#             a.sendCommand("move", [endSquare[0], endSquare[1]])
+#             a.waitForReady()
+#             a.sendCommand("drop", [])
+#             a.waitForReady()
+#         if m[0] == "white":
+#             a.sendCommand("moveWhiteTaken", [m[1], m[2]])
+#             a.waitForReady()
+#             a.sendCommand("pickupTaken", [])
+#             endSquare = convertSquareToCoordinates(chess.square_name(m[3]))
+#             a.sendCommand("move", [endSquare[0], endSquare[1]])
+#             a.waitForReady()
+#             a.sendCommand("drop", [])
+#             a.waitForReady()
+#         if m[0] == "black":
+#             a.sendCommand("moveBlackTaken", [m[1], m[2]])
+#             a.waitForReady()
+#             a.sendCommand("pickupTaken", [])
+#             endSquare = convertSquareToCoordinates(chess.square_name(m[3]))
+#             a.sendCommand("move", [endSquare[0], endSquare[1]])
+#             a.waitForReady()
+#             a.sendCommand("drop", [])
+#             a.waitForReady()
 
 if __name__ == "__main__":
-    cap = CapturedPieceManagement()
+    # cap = CapturedPieceManagement()
     b = chess.Board()
     # b.push_uci("e2e4")
     # b.push_uci("e7e5")
@@ -475,15 +472,15 @@ if __name__ == "__main__":
     # b.push_uci("b1c3")
     # b.push_uci("g8f6")
 
-    b.set_board_fen("r3k1nr/p4pNp/n7/1p1pP2P/6P1/3P1Q2/PRP1K3/q5bR")
-    cap.placePiece("black", "pawn")
-    cap.placePiece("black", "pawn")
-    cap.placePiece("black", "pawn")
-    cap.placePiece("black", "bishop")
-    cap.placePiece("white", "pawn")
-    cap.placePiece("white", "pawn")
-    cap.placePiece("white", "bishop")
-    cap.placePiece("white", "bishop")
-    cap.placePiece("white", "knight")
-    print(findPathGreedy(b.fen(), cap))
-    reset_game_board(b.fen(), cap)
+    # b.set_board_fen("r3k1nr/p4pNp/n7/1p1pP2P/6P1/3P1Q2/PRP1K3/q5bR")
+    # cap.placePiece("black", "pawn")
+    # cap.placePiece("black", "pawn")
+    # cap.placePiece("black", "pawn")
+    # cap.placePiece("black", "bishop")
+    # cap.placePiece("white", "pawn")
+    # cap.placePiece("white", "pawn")
+    # cap.placePiece("white", "bishop")
+    # cap.placePiece("white", "bishop")
+    # cap.placePiece("white", "knight")
+    # print(findPathGreedy(b.fen(), cap))
+    # reset_game_board(b.fen(), cap)

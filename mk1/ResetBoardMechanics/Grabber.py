@@ -4,7 +4,7 @@ import Constants
 
 # Lets define some constants for move speeds, we can define all of these in MM per second
 PLANE_SPEED_MAX: Final[int] = 100
-PLANE_SPEED_MIN: Final[int] = 10
+PLANE_SPEED_MIN: Final[int] = 80
 VERTICAL_SPEED_MAX: Final[int] = 20
 VERTICAL_SPEED_MIN: Final[int] = 10
 
@@ -33,8 +33,8 @@ def calculateSpeed(target: int, currentStep: int, startingStep: int,
 class Grabber:
 
     def __init__(self) -> None:
-        self.x = 200
-        self.y = 200
+        self.x = 0
+        self.y = 0
         self.z = 0
         self.vx = 0
         self.vy = 0
@@ -63,31 +63,15 @@ class Grabber:
 
     def update(self):
         self.ticks += 1
-        # Get all keystrokes
-        # keys = pg.key.get_pressed()
-        # if keys[pg.K_w]:
-        #     self.vy = -PLANE_SPEED_MAX
-        # elif keys[pg.K_s]:
-        #     self.vy = PLANE_SPEED_MAX
-        # else:
-        #     self.vy = 0
-
-        # if keys[pg.K_a]:
-        #     self.vx = -PLANE_SPEED_MAX
-        # elif keys[pg.K_d]:
-        #     self.vx = PLANE_SPEED_MAX
-        # else:
-        #     self.vx = 0
-        # Update the position
         self.x += self.vx / 60
         self.y += self.vy / 60
+        self.z += self.vz / 60
 
         if self.target_x is not None:
             if abs(self.x - self.target_x) < 2:
                 self.vx = 0
                 self.x = self.target_x
                 self.target_x = None
-                print("Done with X")
             else:
                 self.vx = calculateSpeed(self.target_x, self.x,
                                          self.starting_x, PLANE_SPEED_MAX,
@@ -98,7 +82,6 @@ class Grabber:
                 self.vy = 0
                 self.y = self.target_y
                 self.target_y = None
-                print("Done with Y")
             else:
                 self.vy = calculateSpeed(self.target_y, self.y,
                                          self.starting_y, PLANE_SPEED_MAX,
@@ -115,6 +98,5 @@ class Grabber:
                                          self.starting_z, VERTICAL_SPEED_MAX,
                                          VERTICAL_SPEED_MIN)
 
-        # Print the velocities
-        print(self.vx, self.vy)
-        print(self.x, self.y)
+    def in_motion(self):
+        return not (self.vz == 0 and self.vx == 0 and self.vy == 0)
